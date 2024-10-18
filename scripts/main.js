@@ -1,6 +1,8 @@
+
+
 $(document).ready(function() {
     // Base API URL
-    const apiUrl = 'https://baseball-model-api-41381551043.us-central1.run.app'; // Replace with your actual API URL
+    const apiUrl = 'https://baseball-model-api-41381551043.us-central1.run.app'; 
   
     // Variables to store data
     let batters = [];
@@ -63,7 +65,8 @@ $(document).ready(function() {
     init();
   
     function init() {
-      fetchPlayers();
+      callHealthEndpoint(); // Call /health to keep the container awake
+      loadPlayersFromJSON(); // Load players from players.json
       setupEventListeners();
   
       // Initialize Select2 for searchable dropdowns
@@ -74,17 +77,32 @@ $(document).ready(function() {
       });
     }
   
-    // Fetch batters and pitchers from the API
-    function fetchPlayers() {
-      $.getJSON(`${apiUrl}/get_players`)
+    // Call the /health endpoint to wake up container
+    function callHealthEndpoint() {
+      $.ajax({
+        url: `${apiUrl}/health`,
+        method: 'GET',
+        success: function(response) {
+          console.log('Health check successful:', response);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          console.warn('Health check failed:', textStatus, errorThrown);
+          // Optionally, implement retry logic or notify the user
+        }
+      });
+    }
+  
+    // Load players from players.json
+    function loadPlayersFromJSON() {
+      $.getJSON('players.json') // Ensure the path is correct
         .done(function(data) {
           batters = data.batters;
           pitchers = data.pitchers;
           populatePlayerSelects();
         })
         .fail(function(jqXHR, textStatus, errorThrown) {
-          console.error('Error fetching players:', textStatus, errorThrown);
-          alert('Failed to load players. Please try again later.');
+          console.error('Error loading players from JSON:', textStatus, errorThrown);
+          alert('Failed to load player data. Please try again later.');
         });
     }
   
@@ -535,10 +553,6 @@ $(document).ready(function() {
     }
   
 });
-
-
-
-
 
 
 
