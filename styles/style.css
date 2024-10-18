@@ -1,0 +1,317 @@
+/* Define CSS Variables */
+:root {
+  /* Primary and Secondary Colors */
+  --primary-color: #2c3e50;      /* Deep Blue */
+  --secondary-color: #3498db;    /* Soft Blue */
+  --accent-color: #2c3e50;       /* Vibrant Orange */
+
+  /* Neutral Colors */
+  --neutral-light: #ecf0f1;      /* Light Gray */
+  --neutral-dark: #34495e;       /* Dark Gray */
+
+  /* Text Colors */
+  --text-color: #ffffff;          /* Pure White */
+  --text-dark: #2c3e50;           /* Deep Blue for dark text */
+}
+
+/* General Styles */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--neutral-light);
+  margin: 0;
+  padding: 0;
+}
+
+h2 {
+  color: var(--neutral-dark);
+}
+
+h4, h5 {
+  color: var(--neutral-dark);
+}
+
+label {
+  font-weight: 500;
+  color: var(--neutral-dark);
+}
+
+#add-pitch-button,
+#predict-button,
+#reset-sequence-button {
+  min-width: 100px;
+}
+
+/* Custom Navbar Styles */
+.custom-navbar {
+  background-color: var(--primary-color);
+}
+
+/* Navbar Text Colors */
+.custom-navbar .navbar-nav .nav-link,
+.custom-navbar .navbar-brand {
+  color: var(--text-color);
+}
+
+.custom-navbar .navbar-nav .nav-link:hover,
+.custom-navbar .navbar-brand:hover {
+  color: var(--secondary-color);
+}
+
+/* Optional: Customize the navbar-toggler icon for better visibility */
+.custom-navbar .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 0.7)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/ %3E%3C/svg%3E");
+}
+
+/* Instructions Section Styles */
+#instructions {
+  background-color: var(--text-color);
+  padding: 20px;
+  border-left: 5px solid var(--secondary-color);
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#instructions h4 {
+  color: var(--neutral-dark);
+  margin-bottom: 15px;
+}
+
+#instructions .btn-info {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+
+#instructions .btn-info:hover {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+#instructions .card {
+  margin-top: 15px;
+}
+
+#instructions p,
+#instructions ol {
+  color: var(--neutral-dark);
+  font-size: 1rem;
+}
+
+#instructions ol li {
+  margin-bottom: 10px;
+}
+
+/* Pitch List Styles */
+#pitch-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+#pitch-list li {
+  background-color: var(--text-color);
+  color: var(--neutral-dark); /* Changed from var(--neutral-light) to var(--neutral-dark) */
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  border-left: 4px solid var(--secondary-color);
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Strike Zone Styles */
+#strike-zone-container {
+  position: relative;
+  width: 100%;
+  padding-top: 70%; /* Adjusted aspect ratio */
+  background-color: var(--neutral-light);
+  border: 2px solid var(--neutral-dark);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  max-width: 300px; /* Optional: Limit the maximum width */
+}
+
+/* Inner Strike Zone Grid (1-9) */
+.strike-zone-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  width: 80%;
+  height: 80%;
+  gap: 2px;
+}
+
+.zone {
+  border: 1px solid var(--neutral-dark);
+  box-sizing: border-box;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: background-color 0.3s, border-color 0.3s;
+  background-color: var(--neutral-light);
+  color: var(--neutral-dark);
+}
+
+.zone:hover {
+  background-color: var(--secondary-color);
+  color: var(--text-color);
+  border-color: var(--secondary-color);
+}
+
+.zone.selected {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  border-color: var(--primary-color);
+}
+
+.zone-corner {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  background-color: var(--neutral-light);
+  border: 1px solid var(--neutral-dark);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s;
+  color: var(--neutral-dark);
+}
+
+.zone-corner:hover {
+  background-color: var(--secondary-color);
+  color: var(--text-color);
+  border-color: var(--secondary-color);
+}
+
+.zone-corner.selected {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  border-color: var(--primary-color);
+}
+
+/* Positioning Corner Zones Within the Container */
+#zone-11 {
+  top: 5px;
+  left: 5px;
+}
+
+#zone-12 {
+  top: 5px;
+  right: 5px;
+}
+
+#zone-13 {
+  bottom: 5px;
+  left: 5px;
+}
+
+#zone-14 {
+  bottom: 5px;
+  right: 5px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 576px) {
+  #strike-zone-container {
+    padding-top: 100%; /* Maintain square aspect ratio */
+    max-width: 200px; /* Further reduce max-width for mobile */
+  }
+
+  .zone-corner {
+    width: 30px;
+    height: 30px;
+    font-size: 10px;
+  }
+
+  .strike-zone-grid {
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 90%;
+  }
+
+  .zone {
+    font-size: 10px;
+  }
+
+  .navbar-brand,
+  .navbar-nav .nav-link {
+    font-size: 1rem;
+  }
+}
+
+/* Chart Containers */
+#events-chart-container,
+#hit-location-chart-container {
+  background-color: var(--neutral-light);
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#events-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+#hit-location-chart-container img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Tabs Styling */
+.nav-tabs .nav-link {
+  color: var(--neutral-dark);
+}
+
+.nav-tabs .nav-link.active {
+  background-color: var(--secondary-color);
+  color: var(--text-color);
+  border-color: var(--secondary-color);
+}
+
+.nav-tabs .nav-link:hover {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+}
+
+/* Select2 Styles Override for Minimalist Look */
+.select2-container .select2-selection--single {
+  height: 38px;
+  padding: 6px 12px;
+  border: 1px solid var(--neutral-dark);
+  border-radius: 4px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 36px;
+  right: 10px;
+}
+
+/* Loading Text Styles */
+.loading-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5rem;
+  color: var(--neutral-dark);
+  font-weight: bold;
+}
+
+
+
+
+
+
+
+
+
+
