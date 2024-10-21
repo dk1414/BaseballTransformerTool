@@ -28,6 +28,9 @@
         <li class="nav-item">
           <a class="nav-link" href="info.html">Info</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" href="https://medium.com/@declankneita">Blog</a>
+        </li>
       </ul>
     </div>
   </nav>
@@ -55,8 +58,8 @@
               </p>
               <ol>
                 <li><strong>Select a Batter and Pitcher:</strong> Choose the batter and pitcher you want to simulate from the dropdown menus.</li>
-                <li><strong>Add Pitches:</strong> For each pitch, specify the pitch type, event outcome, pre-pitch count of balls, strikes, outs, and select the strike zone.</li>
-                <li><strong>Predict:</strong> Once you've added your desired pitches, click the <em>Predict</em> button to receive event probabilities and a hit location heatmap for the final pitch in the sequence. Note: The model only makes predictions for the final pitch in the sequence, so the value you enter for the Event field when creating the final pitch will be ignored by the model. </li>
+                <li><strong>Add Pitches:</strong> For each pitch, specify the pitch type, outcome event - (this is the result of the current pitch being added), pre-pitch count of balls, strikes, outs, and select the strike zone.</li>
+                <li><strong>Predict:</strong> Once you've added your desired pitches, click the <em>Predict</em> button to receive outcome probabilities and a hit location heatmap for the final pitch in the sequence. Note: The model only makes predictions for the final pitch in the sequence, so the value you enter for the Event field when creating the final pitch will be ignored by the model. </li>
                 <li><strong>Results:</strong> The model will output a probability distribution across different possible results of the final pitch in the sequence. Additionally, the model will produce a heatmap that displays where the batter is most likely to hit the ball, if they make contact.</li>
                 <li><strong>Reset:</strong> To start a new sequence, click the <em>Reset</em> button.</li>
               </ol>
@@ -88,15 +91,15 @@
           </div>
           <!-- Event -->
           <div class="form-group">
-            <label for="event-select">Event:</label>
+            <label for="event-select">Outcome:</label>
             <select id="event-select" class="form-control">
-              <option value="">Select an event</option>
+              <option value="">Select an outcome event</option>
               <!-- Options will be populated dynamically via JavaScript -->
             </select>
           </div>
           <!-- Balls -->
           <div class="form-group">
-            <label for="balls-select">Balls:</label>
+            <label for="balls-select">Pre-Pitch # of Balls:</label>
             <select id="balls-select" class="form-control">
               <option value="">Select balls</option>
               <!-- Options will be populated dynamically via JavaScript -->
@@ -104,7 +107,7 @@
           </div>
           <!-- Strikes -->
           <div class="form-group">
-            <label for="strikes-select">Strikes:</label>
+            <label for="strikes-select">Pre-Pitch # of Strikes:</label>
             <select id="strikes-select" class="form-control">
               <option value="">Select strikes</option>
               <!-- Options will be populated dynamically via JavaScript -->
@@ -112,7 +115,7 @@
           </div>
           <!-- Outs -->
           <div class="form-group">
-            <label for="outs-select">Outs:</label>
+            <label for="outs-select">Pre-Pitch # of Outs:</label>
             <select id="outs-select" class="form-control">
               <option value="">Select outs</option>
               <!-- Options will be populated dynamically via JavaScript -->
