@@ -1,194 +1,173 @@
 
 
 $(document).ready(function() {
-    // Base API URL
-    const apiUrl = 'https://baseball-model-api-41381551043.us-central1.run.app'; 
-  
-    // Variables to store data
-    let batters = [];
-    let pitchers = [];
-    let pitchTypes = [];
-    let pitchSequence = [];
-    let selectedZone;
-    let eventsChart;
-    let hitLocationChart;
-  
-    // Define a color mapping for event categories
-    const eventColorMap = {
-      'B': '#3498db',            // Blue for Ball
-      'S': '#e74c3c',            // Red for Strike
-      'double': '#f23f19',       // Orange for Double
-      'single': '#6af219',       // Lime for Single
-      'field_out': '#194ff2',    // Dark Blue for Field Out
-      'hit_by_pitch': '#8819f2', // Purple for Hit by Pitch
-      'home_run': '#19f2ce',     // Teal for Home Run
-      'strikeout': '#eef611',    // Yellow for Strikeout
-      'triple': '#f611cb',       // Pink for Triple
-      'walk': '#11f685'          // Mint for Walk
-      // Add more event types and their corresponding colors as needed
-    };
+  // Base API URL
+  const apiUrl = 'https://baseball-model-api-41381551043.us-central1.run.app';  
 
-    // Define a name mapping for event categories
-    const eventNameMap = {
-      'B': 'Ball',
-      'S': 'Strike',
-      'double': 'Double',
-      'single': 'Single',
-      'field_out': 'Field Out',
-      'hit_by_pitch': 'Hit by Pitch',
-      'home_run': 'Home Run',
-      'strikeout': 'Strikeout',
-      'triple': 'Triple',
-      'walk': 'Walk'
-      // Add more event types and their corresponding display names as needed
-    };
+  // Variables to store data
+  let batters = [];
+  let pitchers = [];
+  let pitchTypes = [];
+  let pitchSequence = [];
+  let selectedZone;
+  let eventsChart;
+  let hitLocationChart;
+  let pitchTypeData = {}; // Stores the data from pitch_types.json
 
-    // Define a mapping for pitch types
-    const pitchTypeMap = {
-      'CH': 'Changeup',
-      'CU': 'Curveball',
-      'FC': 'Cutter',
-      'EP': 'Eephus',
-      'FO': 'Forkball',
-      'FF': 'Four-Seam Fastball',
-      'KN': 'Knuckleball',
-      'KC': 'Knuckle-curve',
-      'SC': 'Screwball',
-      'SI': 'Sinker',
-      'SL': 'Slider',
-      'SV': 'Slurve',
-      'FS': 'Splitter',
-      'ST': 'Sweeper'
-    };
-  
-    // Initialize the application
-    init();
-  
-    function init() {
-      callHealthEndpoint(); // Call /health to keep the container awake
-      loadPlayersFromJSON(); // Load players from players.json
-      setupEventListeners();
-  
-      // Initialize Select2 for searchable dropdowns
-      $('.searchable').select2({
-        placeholder: 'Select an option',
-        allowClear: true,
-        width: '100%'
+  // Define color and name mappings for event categories
+  const eventColorMap = {
+    'B': '#3498db', 'S': '#e74c3c', 'double': '#f23f19', 'single': '#6af219', 
+    'field_out': '#194ff2', 'hit_by_pitch': '#8819f2', 'home_run': '#19f2ce', 
+    'strikeout': '#eef611', 'triple': '#f611cb', 'walk': '#11f685'
+  };
+  const eventNameMap = {
+    'B': 'Ball', 'S': 'Strike', 'double': 'Double', 'single': 'Single',
+    'field_out': 'Field Out', 'hit_by_pitch': 'Hit by Pitch', 'home_run': 'Home Run',
+    'strikeout': 'Strikeout', 'triple': 'Triple', 'walk': 'Walk'
+  };
+  const pitchTypeMap = {
+    'CH': 'Changeup', 'CU': 'Curveball', 'FC': 'Cutter', 'EP': 'Eephus', 'FO': 'Forkball',
+    'FF': 'Four-Seam Fastball', 'KN': 'Knuckleball', 'KC': 'Knuckle-curve', 'SC': 'Screwball',
+    'SI': 'Sinker', 'SL': 'Slider', 'SV': 'Slurve', 'FS': 'Splitter', 'ST': 'Sweeper'
+  };
+
+  // Initialize the application
+  init();
+
+  function init() {
+    callHealthEndpoint();
+    loadPlayersFromJSON();
+    loadPitchTypesFromJSON(); // Load pitch types from pitch_types.json
+    setupEventListeners();
+
+    $('.searchable').select2({
+      placeholder: 'Select an option',
+      allowClear: true,
+      width: '100%'
+    });
+  }
+
+  // Call the /health endpoint to wake up container
+  function callHealthEndpoint() {
+    $.ajax({
+      url: `${apiUrl}/health`,
+      method: 'GET',
+      success: function(response) {
+        console.log('Health check successful:', response);
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.warn('Health check failed:', textStatus, errorThrown);
+      }
+    });
+  }
+
+  // Load players from players.json
+  function loadPlayersFromJSON() {
+    $.getJSON('players.json')
+      .done(function(data) {
+        batters = data.batters;
+        pitchers = data.pitchers;
+        populatePlayerSelects();
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        console.error('Error loading players from JSON:', textStatus, errorThrown);
+        alert('Failed to load player data. Please try again later.');
       });
+  }
+
+  // Load pitch types from pitch_types.json
+  function loadPitchTypesFromJSON() {
+    $.getJSON('pitch_types.json')
+      .done(function(data) {
+        pitchTypeData = data; // Store the pitch types data for later use
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        console.error('Error loading pitch types from JSON:', textStatus, errorThrown);
+        alert('Failed to load pitch types data. Please try again later.');
+      });
+  }
+
+  // Populate batter and pitcher dropdowns
+  function populatePlayerSelects() {
+    const batterSelect = $('#batter-select');
+    const pitcherSelect = $('#pitcher-select');
+
+    batterSelect.empty();
+    pitcherSelect.empty();
+
+    batterSelect.append('<option value=""></option>');
+    pitcherSelect.append('<option value=""></option>');
+
+    batters.forEach(function(batter) {
+      batterSelect.append(`<option value="${batter}">${batter}</option>`);
+    });
+
+    pitchers.forEach(function(pitcher) {
+      pitcherSelect.append(`<option value="${pitcher}">${pitcher}</option>`);
+    });
+  }
+
+  // Set up event listeners
+  function setupEventListeners() {
+    $('#pitcher-select').on('change', function() {
+      const pitcherName = $(this).val();
+      if (pitcherName) {
+        fetchPitchTypes(pitcherName); // Use modified fetchPitchTypes
+      } else {
+        $('#pitch-type-select').empty().append('<option value="">Select a pitcher first</option>');
+      }
+    });
+
+    $('#add-pitch-button').on('click', function() {
+      addPitchToSequence();
+    });
+
+    $('#predict-button').on('click', function() {
+      makePrediction();
+    });
+
+    $('#reset-sequence-button').on('click', function() {
+      resetSequence();
+    });
+
+    $('select').on('change', function() {
+      validateForm();
+    });
+
+    createStrikeZone();
+    populateEventSelect();
+    populateCountSelects();
+  }
+
+  // Fetch pitch types for the selected pitcher from the JSON file
+  function fetchPitchTypes(pitcherName) {
+    if (pitchTypeData[pitcherName]) {
+      pitchTypes = pitchTypeData[pitcherName];
+      populatePitchTypeSelect();
+    } else {
+      alert('No pitch types found for the selected pitcher.');
+      $('#pitch-type-select').empty().append('<option value="">No pitch types available</option>');
     }
-  
-    // Call the /health endpoint to wake up container
-    function callHealthEndpoint() {
-      $.ajax({
-        url: `${apiUrl}/health`,
-        method: 'GET',
-        success: function(response) {
-          console.log('Health check successful:', response);
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          console.warn('Health check failed:', textStatus, errorThrown);
-          // Optionally, implement retry logic or notify the user
-        }
-      });
-    }
-  
-    // Load players from players.json
-    function loadPlayersFromJSON() {
-      $.getJSON('players.json') // Ensure the path is correct
-        .done(function(data) {
-          batters = data.batters;
-          pitchers = data.pitchers;
-          populatePlayerSelects();
-        })
-        .fail(function(jqXHR, textStatus, errorThrown) {
-          console.error('Error loading players from JSON:', textStatus, errorThrown);
-          alert('Failed to load player data. Please try again later.');
-        });
-    }
-  
-    // Populate the batter and pitcher dropdowns
-    function populatePlayerSelects() {
-      const batterSelect = $('#batter-select');
-      const pitcherSelect = $('#pitcher-select');
-  
-      batterSelect.empty();
-      pitcherSelect.empty();
-  
-      batterSelect.append('<option value=""></option>'); // For Select2 placeholder
-      pitcherSelect.append('<option value=""></option>'); // For Select2 placeholder
-  
-      batters.forEach(function(batter) {
-        batterSelect.append(`<option value="${batter}">${batter}</option>`);
-      });
-  
-      pitchers.forEach(function(pitcher) {
-        pitcherSelect.append(`<option value="${pitcher}">${pitcher}</option>`);
-      });
-    }
-  
-    // Set up event listeners
-    function setupEventListeners() {
-      // When pitcher is selected, fetch pitch types
-      $('#pitcher-select').on('change', function() {
-        const pitcherName = $(this).val();
-        if (pitcherName) {
-          fetchPitchTypes(pitcherName);
-        } else {
-          $('#pitch-type-select').empty().append('<option value="">Select a pitcher first</option>');
-        }
-      });
-  
-      // Add pitch button
-      $('#add-pitch-button').on('click', function() {
-        addPitchToSequence();
-      });
-  
-      // Predict button
-      $('#predict-button').on('click', function() {
-        makePrediction();
-      });
-  
-      // Reset sequence button
-      $('#reset-sequence-button').on('click', function() {
-        resetSequence();
-      });
-  
-      // Disable the add pitch button initially
-      $('#add-pitch-button').prop('disabled', true);
-      $('#predict-button').prop('disabled', true);
-  
-      // Enable add pitch button when all fields are filled
-      $('select').on('change', function() {
-        validateForm();
-      });
-  
-      // Create the strike zone
-      createStrikeZone();
-  
-      // Event select options
-      populateEventSelect();
-      populateCountSelects();
-    }
-  
-    // Fetch pitch types for the selected pitcher
-    function fetchPitchTypes(pitcherName) {
-      $.getJSON(`${apiUrl}/get_pitch_types`, { pitcher_name: pitcherName })
-        .done(function(data) {
-          pitchTypes = data.pitch_types;
-          populatePitchTypeSelect();
-        })
-        .fail(function(jqXHR, textStatus, errorThrown) {
-          console.error('Error fetching pitch types:', textStatus, errorThrown);
-          alert('Failed to load pitch types. Please try again later.');
-        });
-    }
-  
+  }
+
+  // Populate pitch type select with full names
+  function populatePitchTypeSelect() {
+    const pitchTypeSelect = $('#pitch-type-select');
+    pitchTypeSelect.empty();
+    pitchTypeSelect.append('<option value=""></option>');
+
+    pitchTypes.forEach(function(pitchTypeCode) {
+      const pitchTypeName = pitchTypeMap[pitchTypeCode] || pitchTypeCode;
+      pitchTypeSelect.append(`<option value="${pitchTypeCode}">${pitchTypeName}</option>`);
+    });
+  }
+
     // Populate pitch type select with full names
     function populatePitchTypeSelect() {
       const pitchTypeSelect = $('#pitch-type-select');
       pitchTypeSelect.empty();
-      pitchTypeSelect.append('<option value=""></option>'); // For Select2 placeholder
-  
+      pitchTypeSelect.append('<option value=""></option>');
+
       pitchTypes.forEach(function(pitchTypeCode) {
         const pitchTypeName = pitchTypeMap[pitchTypeCode] || pitchTypeCode;
         pitchTypeSelect.append(`<option value="${pitchTypeCode}">${pitchTypeName}</option>`);
